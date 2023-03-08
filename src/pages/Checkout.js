@@ -1,12 +1,13 @@
 import Header from "@/components/Header";
 import Image from "next/image";
 import { useSelector } from "react-redux";
-import { selectItems } from "@/Slices/basketslice";
+import { selectItems, selectTotal } from "@/Slices/basketslice";
 import CheckoutProducts from "@/components/CheckoutProducts";
+import Currency from "react-currency-formatter";
 
 function Checkout() {
   const items = useSelector(selectItems);
-
+  const total = useSelector(selectTotal);
   return (
     <div className="bg-gray-100">
       <Header />
@@ -33,10 +34,27 @@ function Checkout() {
                 description={item.description}
                 category={item.category}
                 image={item.image}
+                rating
                 hasPrime={item.hasPrime}
               />
             ))}
           </div>
+        </div>
+        {/* right section */}
+        <div className="flex flex-col bg-white p-10 shadow-md">
+          {items.length > 0 && (
+            <>
+              <h2 className="whitespace-nowrap">
+                Subtotals ({items.length})items:
+                <span className="font-bold">
+                  {" "}
+                  <Currency quantity={total} />
+                </span>
+              </h2>
+
+              <button className="button mt-2">Pay here</button>
+            </>
+          )}
         </div>
       </main>
     </div>
