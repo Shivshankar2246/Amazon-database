@@ -1,13 +1,35 @@
 import Header from "@/components/Header";
 import Image from "next/image";
 import { useSelector } from "react-redux";
-import { selectItems, selectTotal } from "@/Slices/basketslice";
+import { selectItems, selectQuantity, selectTotal } from "@/Slices/basketslice";
 import CheckoutProducts from "@/components/CheckoutProducts";
 import Currency from "react-currency-formatter";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
+const stripePromise = loadStripe(process.env.stripe_public_key);
 function Checkout() {
   const items = useSelector(selectItems);
   const total = useSelector(selectTotal);
+  const { session } = useSession();
+  const createCheckoutSession = async () => {
+    const stripe = await stripePromise;
+
+    // call the backend to create checkout session
+
+    const checkoutSession = await axios.post("/api/createCheckoutSession", {
+      items: items,
+      email: session && session.user ? session.user.email : "",
+    });
+    // Redirect user/customer to stripe checkout
+    const result = await stripe.redirectToCheckout({
+      sessionId: checkoutSession.data.id,
+    });
+    if (result.error) {
+      alert(result.error.message);
+    }
+  };
   return (
     <div className="bg-gray-100">
       <Header />
@@ -52,7 +74,13 @@ function Checkout() {
                 </span>
               </h2>
 
-              <button className="button mt-2">Pay here</button>
+              <button
+                role="link"
+                onClick={createCheckoutSession}
+                className="button mt-2"
+              >
+                Pay here
+              </button>
             </>
           )}
         </div>

@@ -12,12 +12,19 @@ import { useSelector } from "react-redux";
 import { selectItems } from "@/Slices/basketslice";
 import { Provider } from "react-redux";
 import { store } from "@/Store";
+import { useEffect } from "react";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../pages/api/auth/[...nextauth]";
 
 function Header() {
-  const { session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const items = useSelector(selectItems);
 
+  useEffect(() => {
+    console.log("sessionbgdffb", session);
+    console.log("stattsyysy", status);
+  });
   return (
     <header>
       {/* top nav */}
@@ -43,8 +50,8 @@ function Header() {
 
         {/* right side */}
         <div className="text-white flex items-center text-xs space-x-6 mx-6 whitespace-nowrap">
-          <div onClick={signIn} className=" link ">
-            <p> {session ? `hello, ${session.user.email}` : "Sign In"} </p>
+          <div onClick={() => signIn("google")} className=" link ">
+            <p> {session ? `hello, ${session?.user?.email}` : "Sign In"} </p>
             <p className="font-extrabold md:text-sm">Acount & Lists</p>
           </div>
           <div className=" link">
@@ -84,3 +91,11 @@ function Header() {
   );
 }
 export default Header;
+
+export async function getServerSideProps({ req, res }) {
+  return {
+    props: {
+      session: await getServerSession(req, res, authOptions),
+    },
+  };
+}

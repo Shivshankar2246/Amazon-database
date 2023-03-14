@@ -3,6 +3,8 @@ import Currency from "react-currency-formatter";
 import { useDispatch } from "react-redux";
 import { addToBasket, removeFromBasket } from "@/Slices/basketslice";
 
+import React, { useState } from "react";
+
 function CheckoutProducts({
   id,
   title,
@@ -29,10 +31,11 @@ function CheckoutProducts({
     // push item into redux store
     dispatch(addToBasket(product));
   };
-
+  const [noOfQuantity, setNoOfQuantity] = useState(1);
   const removeItemFromBasket = () => {
     dispatch(removeFromBasket({ id }));
   };
+
   return (
     <div className="grid grid-cols-5">
       {/* Left section */}
